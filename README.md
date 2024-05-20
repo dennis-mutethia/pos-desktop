@@ -1,1 +1,1 @@
-# pos-desktop
+# stock-management-system
