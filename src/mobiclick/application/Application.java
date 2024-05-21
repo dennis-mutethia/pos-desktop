@@ -57,6 +57,7 @@ public class Application extends javax.swing.JFrame {
     }
 
     public static void logout() {
+        LOGGED_IN_USER = null;
         FlatAnimatedLafChange.showSnapshot();
         app.setContentPane(app.loginForm);
         app.loginForm.applyComponentOrientation(app.getComponentOrientation());

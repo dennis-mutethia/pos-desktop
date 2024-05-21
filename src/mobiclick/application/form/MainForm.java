@@ -17,10 +17,11 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import mobiclick.application.Application;
 import mobiclick.application.form.other.FormDashboard;
-import mobiclick.application.form.other.FormInbox;
-import mobiclick.application.form.other.FormRead;
+import mobiclick.application.form.other.FormProducts;
+import mobiclick.application.form.other.FormProductCategories;
 import mobiclick.menu.Menu;
 import mobiclick.menu.MenuAction;
+import mobiclick.menu.MenuEvent;
 
 /**
  *
@@ -70,20 +71,118 @@ public class MainForm extends JLayeredPane {
     private void initMenuEvent() {
         menu.addMenuEvent((int index, int subIndex, MenuAction action) -> {
             // Application.mainForm.showForm(new DefaultForm("Form : " + index + " " + subIndex));
-            if (index == 0) {
-                Application.showForm(new FormDashboard());
-            } else if (index == 1) {
-                if (subIndex == 1) {
-                    Application.showForm(new FormInbox());
-                } else if (subIndex == 2) {
-                    Application.showForm(new FormRead());
-                } else {
+            switch (index) {
+                case 0:
+                    Application.showForm(new FormDashboard());
+                    break;
+                case 1:
+                    switch (subIndex) {
+                        case 1:
+                            Application.showForm(new FormProducts());
+                            break;
+                        case 2:
+                            Application.showForm(new FormProductCategories());
+                            break;
+                        default:
+                            action.cancel();
+                            break;
+                    }
+                    break;                    
+                case 2:
+                    switch (subIndex) {
+                        case 1:
+                            Application.showForm(new FormProducts());
+                            break;
+                        case 2:
+                            Application.showForm(new FormProductCategories());
+                            break;
+                        default:
+                            action.cancel();
+                            break;
+                    }
+                    break;
+                case 3:
+                    switch (subIndex) {
+                        case 1:
+                            Application.showForm(new FormProducts());
+                            break;
+                        case 2:
+                            Application.showForm(new FormProductCategories());
+                            break;
+                        case 3:
+                            Application.showForm(new FormProductCategories());
+                            break;
+                        default:
+                            action.cancel();
+                            break;
+                    }
+                    break;
+                case 4:
+                    switch (subIndex) {
+                        case 1:
+                            Application.showForm(new FormProducts());
+                            break;
+                        case 2:
+                            Application.showForm(new FormProductCategories());
+                            break;
+                        default:
+                            action.cancel();
+                            break;
+                    }
+                    break;
+                case 5:
+                    Application.showForm(new FormDashboard());
+                    break;
+                case 6:
+                    Application.showForm(new FormDashboard());
+                    break;
+                case 7:
+                    switch (subIndex) {
+                        case 1:
+                            Application.showForm(new FormProducts());
+                            break;
+                        case 2:
+                            Application.showForm(new FormProductCategories());
+                            break;
+                        case 3:
+                            Application.showForm(new FormProducts());
+                            break;
+                        case 4:
+                            Application.showForm(new FormProductCategories());
+                            break;
+                        case 5:
+                            Application.showForm(new FormProducts());
+                            break;
+                        case 6:
+                            Application.showForm(new FormProductCategories());
+                            break;
+                        default:
+                            action.cancel();
+                            break;
+                    }
+                    break;
+                case 8:
+                    switch (subIndex) {
+                        case 1:
+                            Application.showForm(new FormProducts());
+                            break;
+                        case 2:
+                            Application.showForm(new FormProductCategories());
+                            break;
+                        default:
+                            action.cancel();
+                            break;
+                    }
+                    break;
+                case 9:
+                    Application.logout();
+                    break;
+                case 10:
+                    Application.logout();
+                    break;
+                default:
                     action.cancel();
-                }
-            } else if (index == 9) {
-                Application.logout();
-            } else {
-                action.cancel();
+                    break;
             }
         });
     }

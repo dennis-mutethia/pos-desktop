@@ -43,6 +43,7 @@ public class LoginForm extends javax.swing.JPanel {
                 + "borderWidth:0;"
                 + "focusWidth:0");
         txtPass.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Password");
+        txtPass.requestFocus();
     }
    
     private void loadUsernames() {
@@ -66,8 +67,7 @@ public class LoginForm extends javax.swing.JPanel {
         String username = jcbUser.getSelectedItem().toString();      
         String password = new String(txtPass.getPassword());
         
-        try {
-            Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = ""
                     + "SELECT users.id, users.username, users.name, "
                     + "user_roles.id AS role_id, user_roles.name AS role_name "
@@ -100,6 +100,7 @@ public class LoginForm extends javax.swing.JPanel {
         }
 
         if (Application.LOGGED_IN_USER != null) {
+            txtPass.setText(null);
             Application.login();
         } else {
             Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Invalid Password!! Try again...");
