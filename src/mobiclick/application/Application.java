@@ -8,8 +8,11 @@ import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import mobiclick.application.db.DBInit;
+import mobiclick.application.db.models.User;
 import mobiclick.application.form.LoginForm;
 import mobiclick.application.form.MainForm;
 import raven.toast.Notifications;
@@ -19,7 +22,10 @@ import raven.toast.Notifications;
  * @author mobiclick
  */
 public class Application extends javax.swing.JFrame {
-
+    public static User LOGGED_IN_USER = null;
+    public final static String DB_URL = "jdbc:sqlite:pos.db";
+    public final static Logger LOGGER = Logger.getLogger(Application.class.getName());
+    
     private static Application app;
     private final MainForm mainForm;
     private final LoginForm loginForm;
@@ -88,6 +94,7 @@ public class Application extends javax.swing.JFrame {
         UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 13));
         FlatMacDarkLaf.setup();
         java.awt.EventQueue.invokeLater(() -> {
+            DBInit.loadSqlFile();
             app = new Application();
             //  app.applyComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
             app.setVisible(true);

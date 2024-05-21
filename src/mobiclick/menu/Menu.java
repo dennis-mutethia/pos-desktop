@@ -27,8 +27,10 @@ public class Menu extends JPanel {
     private final String menuItems[][] = {
         {"~MAIN~"},
         {"Dashboard"},
-        {"~WEB APP~"},
-        {"Email", "Inbox", "Read", "Compost"},
+        {"POS"},
+        {"~INVENTORY~"},
+        {"Products", "All Products", "Product Categories"},
+        {"Purchases", "My Purchases", "Purchases Returns"},
         {"Chat"},
         {"Calendar"},
         {"~COMPONENT~"},
