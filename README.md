@@ -2,7 +2,7 @@
 This POS dashboard is built by using java swing with flatlaf look and feel and SQLite Database
 Use of SQLite Database makes it a self-contained application which does not require third party database installation
 
-### Library use
+### Library used
 - flatlaf-3.2.jar
 - flatlaf-extras-3.2.jar
 - jsvg-1.2.0.jar
