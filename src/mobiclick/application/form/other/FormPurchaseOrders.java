@@ -67,14 +67,14 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
             LOGGER.log(Level.SEVERE, "{0}", e);
         }
     }
-    
+
     private void loadPurchaseOrders() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
         String searchText = "%" + jTextField1.getText().trim() + "%";
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = ""
-                    + "SELECT purchase_orders.id, purchase_orders.product_id, DATE(purchase_orders.created_at) AS order_date, purchase_orders.buying_price, purchase_orders.order_qty, " 
+                    + "SELECT purchase_orders.id, purchase_orders.product_id, DATE(purchase_orders.created_at) AS order_date, purchase_orders.buying_price, purchase_orders.order_qty, "
                     + "products.name, products.quantity AS in_stock, products.restock_value, "
                     + "product_categories.name AS category_name, suppliers.name AS supplier_name "
                     + "FROM purchase_orders "
@@ -111,10 +111,11 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
             LOGGER.log(Level.SEVERE, "{0}", e);
         }
     }
- 
+
     private void setProductDetail() {
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         int selectedRowIndex = jTable2.getSelectedRow();
+        jTextField3.setText(null);
         jTextField9.setText(model.getValueAt(selectedRowIndex, 0).toString());
         jTextField2.setText(model.getValueAt(selectedRowIndex, 2).toString());
         jTextField4.setText(model.getValueAt(selectedRowIndex, 3).toString());
@@ -122,7 +123,26 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         jTextField7.setText(model.getValueAt(selectedRowIndex, 10).toString());
         jTextField10.setText(model.getValueAt(selectedRowIndex, 9).toString());
         jTextField6.setText(model.getValueAt(selectedRowIndex, 5).toString());
+        jTextField8.setText(null);
+        jTextField11.setText(null);
         jButton2.setEnabled(true);
+        jButton5.setEnabled(false);
+    }
+
+    private void setPurchaseOrderDetail() {
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        int selectedRowIndex = jTable1.getSelectedRow();
+        jTextField3.setText(model.getValueAt(selectedRowIndex, 0).toString());
+        jTextField9.setText(model.getValueAt(selectedRowIndex, 1).toString());
+        jTextField2.setText(model.getValueAt(selectedRowIndex, 3).toString());
+        jTextField4.setText(model.getValueAt(selectedRowIndex, 4).toString());
+        jTextField5.setText(model.getValueAt(selectedRowIndex, 5).toString());
+        jTextField7.setText(model.getValueAt(selectedRowIndex, 6).toString());
+        jTextField10.setText(model.getValueAt(selectedRowIndex, 7).toString());
+        jTextField6.setText(model.getValueAt(selectedRowIndex, 8).toString());
+        jTextField8.setText(model.getValueAt(selectedRowIndex, 9).toString());
+        jTextField11.setText(model.getValueAt(selectedRowIndex, 10).toString());
+        jButton5.setEnabled(true);
     }
 
     private void clearProductDetail() {
@@ -142,16 +162,17 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         jTextField6.setEnabled(isEnabled);
         jTextField8.setEnabled(isEnabled);
         jButton2.setEnabled(isEnabled);
+        jButton3.setEnabled(!isEnabled);
     }
-    
-    private void calculateTotal(){
+
+    private void calculateTotal() {
         String buying_price = jTextField6.getText().trim();
         String order_qty = jTextField8.getText().trim();
         double bp = !"".equals(buying_price) ? Double.parseDouble(buying_price) : 0.0;
         double oq = !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0;
-        double total = bp  * oq;
+        double total = bp * oq;
         jTextField11.setText(Double.toString(total));
-        
+
     }
 
     private void savePurchaseOrder() {
@@ -179,9 +200,9 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                     pstmt.setString(5, id);
                 }
 
-                if ("".equals(buying_price) ) {
+                if ("".equals(buying_price)) {
                     Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Buying Price");
-                }else if ("".equals(order_qty) ) {
+                } else if ("".equals(order_qty)) {
                     Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Order Quantity");
                 } else {
                     int success = pstmt.executeUpdate();
@@ -190,10 +211,72 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                         Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_CENTER, "Purchase Order Successfully Added/Updated");
                         this.loadPurchaseOrders();
                         this.clearProductDetail();
-                        
+
                         jButton2.setEnabled(false);
                         jButton3.setEnabled(false);
                         jButton5.setEnabled(false);
+                    } else {
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Problem in Saving. Retry");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "{0}", e);
+        }
+    }
+
+    private void receivePurchaseOrder() {
+        String id = jTextField3.getText().trim();
+        String product_id = jTextField9.getText().trim();
+        String buying_price = jTextField6.getText().trim();
+        String order_qty = jTextField8.getText().trim();
+
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String query = "UPDATE purchase_orders "
+                    + "SET status=?, buying_price=?, order_qty=?, updated_by=? "
+                    + "WHERE id=?";
+
+            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                pstmt.setInt(1, 1);
+                pstmt.setDouble(2, !"".equals(buying_price) ? Double.parseDouble(buying_price) : 0.0);
+                pstmt.setDouble(3, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
+                pstmt.setInt(4, Application.LOGGED_IN_USER.getId());
+                pstmt.setString(5, id);
+
+                if ("".equals(buying_price)) {
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Buying Price");
+                } else if ("".equals(order_qty)) {
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Order Quantity");
+                } else {
+                    int success = pstmt.executeUpdate();
+
+                    if (success == 1) {
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_CENTER, "Purchase Order Received Successfully");
+                        this.loadPurchaseOrders();
+                                
+                        query = "UPDATE products "
+                                + "SET quantity=quantity+?, updated_by=? "
+                                + "WHERE id=?";
+
+                        try (PreparedStatement pstmt2 = conn.prepareStatement(query)) {
+                            pstmt2.setDouble(1, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
+                            pstmt2.setInt(2, Application.LOGGED_IN_USER.getId());
+                            pstmt2.setString(3, product_id);
+                            success = pstmt2.executeUpdate();
+
+                            if (success == 1) {
+                                Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_CENTER, "Products Inventory Updated Successfully");
+                                this.loadProducts();
+                                this.clearProductDetail();
+
+                                jButton2.setEnabled(false);
+                                jButton3.setEnabled(false);
+                                jButton5.setEnabled(false);
+                            } else {
+                                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Problem in Saving. Retry");
+                            }
+                        }
+
                     } else {
                         Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Problem in Saving. Retry");
                     }
@@ -260,6 +343,8 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
             }
         });
         jTable1.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jTable1.setShowHorizontalLines(true);
+        jTable1.setShowVerticalLines(true);
         jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTable1MouseClicked(evt);
@@ -300,6 +385,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         jLabel10.setText("TOTAL AMOUNT:");
 
         jTextField2.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jTextField2.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField2.setEnabled(false);
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -308,6 +394,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         });
 
         jTextField3.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jTextField3.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField3.setEnabled(false);
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -316,6 +403,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         });
 
         jTextField4.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jTextField4.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField4.setEnabled(false);
         jTextField4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -399,6 +487,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         });
 
         jTextField5.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jTextField5.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField5.setEnabled(false);
         jTextField5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -420,6 +509,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         jLabel8.setText("PRODUCT ID:");
 
         jTextField9.setFont(new java.awt.Font("Times New Roman", 1, 14)); // NOI18N
+        jTextField9.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jTextField9.setEnabled(false);
         jTextField9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -560,6 +650,8 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
             }
         });
         jTable2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jTable2.setShowHorizontalLines(true);
+        jTable2.setShowVerticalLines(true);
         jTable2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTable2MouseClicked(evt);
@@ -631,12 +723,12 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-        this.setProductDetail();
+        this.setPurchaseOrderDetail();
         this.editProduct(false);
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void jTable1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTable1KeyReleased
-        this.setProductDetail();
+        this.setPurchaseOrderDetail();
         this.editProduct(false);
     }//GEN-LAST:event_jTable1KeyReleased
 
@@ -692,11 +784,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        this.clearProductDetail();
-        this.editProduct(true);
-        jTextField2.requestFocus();
-        jButton2.setEnabled(true);
-        jButton3.setEnabled(false);
+        jTable2.requestFocus();
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
@@ -704,7 +792,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
     }//GEN-LAST:event_jTextField5ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
+        this.receivePurchaseOrder();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jTable2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable2MouseClicked

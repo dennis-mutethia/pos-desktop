@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS product_categories (
   status INTEGER DEFAULT 1,
   UNIQUE (name, status)
 );
+INSERT OR IGNORE INTO product_categories(name) 
+VALUES('');
 
 CREATE TABLE IF NOT EXISTS suppliers (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -56,6 +58,8 @@ CREATE TABLE IF NOT EXISTS suppliers (
   status INTEGER DEFAULT 1,
   UNIQUE (name, status)
 );
+INSERT OR IGNORE INTO suppliers(name) 
+VALUES('');
 
 CREATE TABLE IF NOT EXISTS products (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
