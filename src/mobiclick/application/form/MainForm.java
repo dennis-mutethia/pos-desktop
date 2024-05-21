@@ -19,6 +19,7 @@ import mobiclick.application.Application;
 import mobiclick.application.form.other.FormDashboard;
 import mobiclick.application.form.other.FormProducts;
 import mobiclick.application.form.other.FormProductCategories;
+import mobiclick.application.form.other.FormSuppliers;
 import mobiclick.menu.Menu;
 import mobiclick.menu.MenuAction;
 import mobiclick.menu.MenuEvent;
@@ -110,7 +111,7 @@ public class MainForm extends JLayeredPane {
                             Application.showForm(new FormProductCategories());
                             break;
                         case 3:
-                            Application.showForm(new FormProductCategories());
+                            Application.showForm(new FormSuppliers());
                             break;
                         default:
                             action.cancel();
