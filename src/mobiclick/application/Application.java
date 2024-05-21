@@ -95,7 +95,7 @@ public class Application extends javax.swing.JFrame {
         UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 13));
         FlatMacDarkLaf.setup();
         java.awt.EventQueue.invokeLater(() -> {
-            DBInit.loadSqlFile();
+            new DBInit().loadSqlFile();
             app = new Application();
             //  app.applyComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
             app.setVisible(true);
