@@ -5,6 +5,7 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -96,7 +97,8 @@ public class Application extends javax.swing.JFrame {
         FlatRobotoFont.install();
         FlatLaf.registerCustomDefaultsSource("mobiclick.theme");
         UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 13));
-        FlatMacDarkLaf.setup();
+        //Set default theme
+        FlatMacLightLaf.setup();
         java.awt.EventQueue.invokeLater(() -> {
             new DBInit().loadSqlFile();
             app = new Application();

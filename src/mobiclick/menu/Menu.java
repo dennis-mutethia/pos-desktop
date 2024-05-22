@@ -122,12 +122,12 @@ public class Menu extends JPanel {
 
     private void createMenu() {
         int index = 0;
-        for (int i = 0; i < menuItems.length; i++) {
-            String menuName = menuItems[i][0];
+        for (String[] menuItem1 : menuItems) {
+            String menuName = menuItem1[0];
             if (menuName.startsWith("~") && menuName.endsWith("~")) {
                 panelMenu.add(createTitle(menuName));
             } else {
-                MenuItem menuItem = new MenuItem(this, menuItems[i], index++, events);
+                MenuItem menuItem = new MenuItem(this, menuItem1, index++, events);
                 panelMenu.add(menuItem);
             }
         }
