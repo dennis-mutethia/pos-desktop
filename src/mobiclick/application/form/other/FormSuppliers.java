@@ -97,16 +97,16 @@ public class FormSuppliers extends javax.swing.JPanel {
                 }
 
                 if ("".equals(name)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Supplier Name");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Supplier Name");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_CENTER, "Product Supplier Successfully Added/Updated");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Product Supplier Successfully Added/Updated");
                         this.loadSuppliers();
                         this.clearSupplierDetail();
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
                     }
                 }
             }

@@ -190,16 +190,16 @@ public class FormProducts extends javax.swing.JPanel {
                 }
 
                 if ("".equals(name)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Product Name");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Product Name");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_CENTER, "Product Successfully Added/Updated");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Product Successfully Added/Updated");
                         this.loadProducts();
                         this.clearProductDetail();
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
                     }
                 }
             }

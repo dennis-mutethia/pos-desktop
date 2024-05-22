@@ -201,14 +201,14 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                 }
 
                 if ("".equals(buying_price)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Buying Price");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Buying Price");
                 } else if ("".equals(order_qty)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Order Quantity");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Order Quantity");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_CENTER, "Purchase Order Successfully Added/Updated");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Purchase Order Successfully Added/Updated");
                         this.loadPurchaseOrders();
                         this.clearProductDetail();
 
@@ -216,7 +216,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                         jButton3.setEnabled(false);
                         jButton5.setEnabled(false);
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
                     }
                 }
             }
@@ -244,14 +244,14 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                 pstmt.setString(5, id);
 
                 if ("".equals(buying_price)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Buying Price");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Buying Price");
                 } else if ("".equals(order_qty)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, "Missing Order Quantity");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Order Quantity");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_CENTER, "Purchase Order Received Successfully");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Purchase Order Received Successfully");
                         this.loadPurchaseOrders();
                                 
                         query = "UPDATE products "
@@ -265,7 +265,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                             success = pstmt2.executeUpdate();
 
                             if (success == 1) {
-                                Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_CENTER, "Products Inventory Updated Successfully");
+                                Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Products Inventory Updated Successfully");
                                 this.loadProducts();
                                 this.clearProductDetail();
 
@@ -273,12 +273,12 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                                 jButton3.setEnabled(false);
                                 jButton5.setEnabled(false);
                             } else {
-                                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Problem in Saving. Retry");
+                                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
                             }
                         }
 
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
                     }
                 }
             }
@@ -784,7 +784,9 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        jTable2.requestFocus();
+        jTable2.requestFocus();        
+        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.BOTTOM_RIGHT, 
+                "Pick a Product to Add from the Inventory Table");
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
