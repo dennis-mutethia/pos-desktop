@@ -41,7 +41,6 @@ public class DBInit {
                     if (!query.trim().isEmpty()) {
                         try (Statement stmt = conn.createStatement()) {
                             stmt.execute(query);
-                            System.out.println("Statement executed.");
                         } catch (SQLException e) {
                             LOGGER.log(Level.SEVERE, "{0}", e);
                         }

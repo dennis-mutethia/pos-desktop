@@ -111,6 +111,8 @@ public class FormProductCategories extends javax.swing.JPanel {
                 }
             }
         } catch (SQLException e) {
+            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 
+                    "Problem in Saving - Product Category with same Name already Exists");
             LOGGER.log(Level.SEVERE, "{0}", e);
         }
     }
