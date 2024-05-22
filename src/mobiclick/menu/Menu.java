@@ -30,7 +30,7 @@ public class Menu extends JPanel {
         {"POS", "New Sale", "Today Bills"},
         {"~INVENTORY~"},
         {"Products", "All Products", "Product Categories"},
-        {"Purchases", "Purchase Orders", "Purchases Returns", "Suppliers"},
+        {"Purchases", "Open Purchase Orders", "Received Orders", "Suppliers"},
         {"~SALES~"},
         {"Customers", "My Customers", "Customer Bills"},
         {"Expenses"},

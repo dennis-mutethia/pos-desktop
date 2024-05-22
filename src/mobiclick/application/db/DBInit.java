@@ -34,8 +34,7 @@ public class DBInit {
     private void executeSql(String sql) {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             if (conn != null) {
-                System.out.println("Connected to the database.");
-                System.out.println("Creating base tables...");
+                System.out.println("Initializing database...");
 
                 for (String query : sql.split(";")) {
                     if (!query.trim().isEmpty()) {
@@ -47,7 +46,7 @@ public class DBInit {
                     }
                 }
                 
-                System.out.println("Done creating base tables...");
+                System.out.println("Done initializing database...");
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "{0}", e);

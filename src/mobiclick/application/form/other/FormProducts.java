@@ -113,12 +113,13 @@ public class FormProducts extends javax.swing.JPanel {
         jTextField2.setText(model.getValueAt(selectedRowIndex, 1).toString());
         jTextField4.setText(model.getValueAt(selectedRowIndex, 2).toString());
         jComboBox1.setSelectedItem(model.getValueAt(selectedRowIndex, 3).toString());
-        jTextField7.setText(model.getValueAt(selectedRowIndex, 4).toString());
-        jTextField6.setText(model.getValueAt(selectedRowIndex, 5).toString());
-        jTextField8.setText(model.getValueAt(selectedRowIndex, 6).toString());
-        jTextField9.setText(model.getValueAt(selectedRowIndex, 7).toString());
-        jTextField10.setText(model.getValueAt(selectedRowIndex, 8).toString());
-        jTextField11.setText(model.getValueAt(selectedRowIndex, 9).toString());
+        jComboBox2.setSelectedItem(model.getValueAt(selectedRowIndex, 4).toString());
+        jTextField7.setText(model.getValueAt(selectedRowIndex, 5).toString());
+        jTextField6.setText(model.getValueAt(selectedRowIndex, 6).toString());
+        jTextField8.setText(model.getValueAt(selectedRowIndex, 7).toString());
+        jTextField9.setText(model.getValueAt(selectedRowIndex, 8).toString());
+        jTextField10.setText(model.getValueAt(selectedRowIndex, 9).toString());
+        jTextField11.setText(model.getValueAt(selectedRowIndex, 10).toString());
         jButton3.setEnabled(true);
     }
 
@@ -169,7 +170,7 @@ public class FormProducts extends javax.swing.JPanel {
 
             if (!"".equals(id)) {
                 query = "UPDATE products "
-                        + "SET barcode=?, name=?, category_id=(SELECT id FROM product_categories WHERE name=?),supplier_id=(SELECT id FROM suppliers WHERE name=?), buying_price=?, stockist_price=?, wholesale_price=?, retail_price=?, quantity=?, restock_value=?, updated_by=? "
+                        + "SET barcode=?, name=?, category_id=(SELECT id FROM product_categories WHERE name=?),supplier_id=(SELECT id FROM suppliers WHERE name=?), buying_price=?, stockist_price=?, wholesale_price=?, retail_price=?, quantity=?, restock_value=?, updated_at=DATETIME(), updated_by=? "
                         + "WHERE id=?";
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -190,21 +191,21 @@ public class FormProducts extends javax.swing.JPanel {
                 }
 
                 if ("".equals(name)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Product Name");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Product Name");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Product Successfully Added/Updated");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Product Successfully Added/Updated");
                         this.loadProducts();
                         this.clearProductDetail();
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
                     }
                 }
             }
         } catch (SQLException e) {
-            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 
+            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, 
                     "Problem in Saving - Product with same Name already Exists");
 
             LOGGER.log(Level.SEVERE, "{0}", e);

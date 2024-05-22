@@ -84,7 +84,7 @@ public class FormProductCategories extends javax.swing.JPanel {
 
             if (!"".equals(id)) {
                 query = "UPDATE product_categories "
-                        + "SET name=?, description=?, updated_by=? "
+                        + "SET name=?, description=?, updated_at=DATETIME(), updated_by=? "
                         + "WHERE id=?";
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -97,21 +97,21 @@ public class FormProductCategories extends javax.swing.JPanel {
                 }
 
                 if ("".equals(name)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Product Category Name");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Product Category Name");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Product Category Successfully Added/Updated");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Product Category Successfully Added/Updated");
                         this.loadProductCategories();
                         this.clearProductCategoryDetail();
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
                     }
                 }
             }
         } catch (SQLException e) {
-            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 
+            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, 
                     "Problem in Saving - Product Category with same Name already Exists");
             LOGGER.log(Level.SEVERE, "{0}", e);
         }

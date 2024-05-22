@@ -103,7 +103,7 @@ public class LoginForm extends javax.swing.JPanel {
             txtPass.setText(null);
             Application.login();
         } else {
-            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, "Invalid Password!! Try again...");
+            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_CENTER, 5000, "Invalid Password!! Try again...");
             txtPass.setText(null);
         }
 

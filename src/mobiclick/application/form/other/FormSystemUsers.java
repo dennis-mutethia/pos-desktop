@@ -108,7 +108,7 @@ public class FormSystemUsers extends javax.swing.JPanel {
 
     private void saveUserDetail() {
         String id = jTextField3.getText().trim();
-        String username = jTextField2.getText().trim().toUpperCase();
+        String username = jTextField2.getText().trim().toLowerCase();
         String name = jTextField4.getText().trim().toUpperCase();
         String phone = jTextField7.getText().trim();
         String role = jComboBox2.getSelectedItem().toString().trim();
@@ -119,7 +119,7 @@ public class FormSystemUsers extends javax.swing.JPanel {
 
             if (!"".equals(id)) {
                 query = "UPDATE users "
-                        + "SET username=?, name=?, phone=?, role_id=(SELECT id FROM user_roles WHERE name=?), updated_by=? "
+                        + "SET username=?, name=?, phone=?, role_id=(SELECT id FROM user_roles WHERE name=?), updated_at=DATETIME(), updated_by=? "
                         + "WHERE id=?";
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -134,21 +134,21 @@ public class FormSystemUsers extends javax.swing.JPanel {
                 }
 
                 if ("".equals(username)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing UserName");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing UserName");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "User Successfully Added/Updated");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "User Successfully Added/Updated");
                         this.loadProducts();
                         this.clearUserDetail();
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
                     }
                 }
             }
         } catch (SQLException e) {
-            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 
+            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, 
                     "Problem in Saving - User with same username already Exists");
 
             LOGGER.log(Level.SEVERE, "{0}", e);

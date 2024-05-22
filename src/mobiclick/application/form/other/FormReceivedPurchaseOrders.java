@@ -16,11 +16,11 @@ import raven.toast.Notifications;
  *
  * @author mobiclick
  */
-public class FormPurchaseOrders extends javax.swing.JPanel {
+public class FormReceivedPurchaseOrders extends javax.swing.JPanel {
 
-    public FormPurchaseOrders() {
+    public FormReceivedPurchaseOrders() {
         initComponents();
-        this.loadPurchaseOrders();
+        this.loadReceivedOrders();
         this.loadProducts();
         this.clearProductDetail();
     }
@@ -68,7 +68,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         }
     }
 
-    private void loadPurchaseOrders() {
+    private void loadReceivedOrders() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
         String searchText = "%" + jTextField1.getText().trim() + "%";
@@ -81,7 +81,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                     + "JOIN products ON products.id=purchase_orders.product_id "
                     + "JOIN product_categories ON product_categories.id=products.category_id "
                     + "JOIN suppliers ON suppliers.id=products.supplier_id "
-                    + "WHERE purchase_orders.status = 0 "
+                    + "WHERE purchase_orders.status = 1 "
                     + "AND (products.name LIKE ? OR product_categories.name LIKE ?)";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -124,12 +124,13 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         jTextField10.setText(model.getValueAt(selectedRowIndex, 9).toString());
         jTextField6.setText(model.getValueAt(selectedRowIndex, 5).toString());
         jTextField8.setText(null);
+        jTextField8.requestFocus();
         jTextField11.setText(null);
         jButton2.setEnabled(true);
         jButton5.setEnabled(false);
     }
 
-    private void setPurchaseOrderDetail() {
+    private void setReceivedOrderDetail() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         int selectedRowIndex = jTable1.getSelectedRow();
         jTextField3.setText(model.getValueAt(selectedRowIndex, 0).toString());
@@ -175,48 +176,49 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
 
     }
 
-    private void savePurchaseOrder() {
+    private void saveReceivedOrder() {
         String id = jTextField3.getText().trim();
         String product_id = jTextField9.getText().trim();
         String buying_price = jTextField6.getText().trim();
         String order_qty = jTextField8.getText().trim();
 
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
-            String query = "INSERT INTO purchase_orders(product_id, buying_price, order_qty, created_by) "
-                    + "VALUES(?,?,?,?)";
+            String query = "INSERT INTO purchase_orders(product_id, buying_price, order_qty, status, created_by) "
+                    + "VALUES(?,?,?,?,?)";
 
             if (!"".equals(id)) {
                 query = "UPDATE purchase_orders "
-                        + "SET product_id=?, buying_price=?, order_qty=?, updated_by=? "
+                        + "SET product_id=?, buying_price=?, order_qty=?, status=?, updated_at=DATETIME(), updated_by=? "
                         + "WHERE id=?";
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, product_id);
                 pstmt.setDouble(2, !"".equals(buying_price) ? Double.parseDouble(buying_price) : 0.0);
                 pstmt.setDouble(3, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
-                pstmt.setInt(4, Application.LOGGED_IN_USER.getId());
+                pstmt.setInt(4, 1);
+                pstmt.setInt(5, Application.LOGGED_IN_USER.getId());
 
                 if (!"".equals(id)) {
-                    pstmt.setString(5, id);
+                    pstmt.setString(6, id);
                 }
 
                 if ("".equals(buying_price)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Buying Price");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Buying Price");
                 } else if ("".equals(order_qty)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Order Quantity");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Order Quantity");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Purchase Order Successfully Added/Updated");
-                        this.loadPurchaseOrders();
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Purchase Order Successfully Added/Updated");
+                        this.loadReceivedOrders();
                         this.clearProductDetail();
 
                         jButton2.setEnabled(false);
                         jButton3.setEnabled(false);
                         jButton5.setEnabled(false);
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
                     }
                 }
             }
@@ -225,7 +227,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         }
     }
 
-    private void receivePurchaseOrder() {
+    private void returnOrder() {
         String id = jTextField3.getText().trim();
         String product_id = jTextField9.getText().trim();
         String buying_price = jTextField6.getText().trim();
@@ -233,29 +235,29 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
 
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = "UPDATE purchase_orders "
-                    + "SET status=?, buying_price=?, order_qty=?, updated_by=? "
+                    + "SET status=?, buying_price=?, order_qty=?, updated_at=DATETIME(), updated_by=? "
                     + "WHERE id=?";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-                pstmt.setInt(1, 1);
+                pstmt.setInt(1, 2);
                 pstmt.setDouble(2, !"".equals(buying_price) ? Double.parseDouble(buying_price) : 0.0);
                 pstmt.setDouble(3, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
                 pstmt.setInt(4, Application.LOGGED_IN_USER.getId());
                 pstmt.setString(5, id);
 
                 if ("".equals(buying_price)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Buying Price");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Buying Price");
                 } else if ("".equals(order_qty)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing Order Quantity");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Order Quantity");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Purchase Order Received Successfully");
-                        this.loadPurchaseOrders();
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Order Returned Successfully");
+                        this.loadReceivedOrders();
                                 
                         query = "UPDATE products "
-                                + "SET quantity=quantity+?, updated_by=? "
+                                + "SET quantity=quantity-?, updated_at=DATETIME(), updated_by=? "
                                 + "WHERE id=?";
 
                         try (PreparedStatement pstmt2 = conn.prepareStatement(query)) {
@@ -265,7 +267,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                             success = pstmt2.executeUpdate();
 
                             if (success == 1) {
-                                Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Products Inventory Updated Successfully");
+                                Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Products Inventory Updated Successfully");
                                 this.loadProducts();
                                 this.clearProductDetail();
 
@@ -273,12 +275,12 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                                 jButton3.setEnabled(false);
                                 jButton5.setEnabled(false);
                             } else {
-                                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
+                                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
                             }
                         }
 
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
                     }
                 }
             }
@@ -497,7 +499,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
 
         jButton5.setBackground(java.awt.Color.orange);
         jButton5.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        jButton5.setText("Receive Order");
+        jButton5.setText("Return Order");
         jButton5.setEnabled(false);
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -527,24 +529,22 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                     .addComponent(jButton5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
                         .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel8Layout.createSequentialGroup()
-                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
+                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField9)
+                            .addComponent(jTextField2)
                             .addComponent(jTextField4)
                             .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jTextField6)
@@ -552,8 +552,11 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
                             .addComponent(jTextField8)
                             .addComponent(jTextField10)
                             .addComponent(jTextField11)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.Alignment.TRAILING))))
+                            .addComponent(jTextField5, javax.swing.GroupLayout.Alignment.TRAILING)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
+                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextField9)))
                 .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
@@ -609,7 +612,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
         );
 
         jButton4.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        jButton4.setText("Place New Purchase Order");
+        jButton4.setText("Add New Received Order");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
@@ -669,7 +672,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
 
         jLabel13.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
         jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel13.setText("Open Orders");
+        jLabel13.setText("Received Orders");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -678,22 +681,21 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+                                .addContainerGap()
+                                .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton4))
                             .addComponent(jScrollPane1))
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 231, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton1)
-                                .addGap(12, 12, 12))
+                                .addComponent(jButton1))
                             .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1043, Short.MAX_VALUE)
                     .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -723,22 +725,22 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-        this.setPurchaseOrderDetail();
+        this.setReceivedOrderDetail();
         this.editProduct(false);
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void jTable1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTable1KeyReleased
-        this.setPurchaseOrderDetail();
+        this.setReceivedOrderDetail();
         this.editProduct(false);
     }//GEN-LAST:event_jTable1KeyReleased
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        this.loadPurchaseOrders();
+        this.loadReceivedOrders();
         this.loadProducts();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        this.loadPurchaseOrders();
+        this.loadReceivedOrders();
         this.loadProducts();
     }//GEN-LAST:event_jTextField1ActionPerformed
 
@@ -775,18 +777,20 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
     }//GEN-LAST:event_jTextField11ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        this.savePurchaseOrder();
+        this.saveReceivedOrder();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         this.jButton3.setEnabled(false);
+        jTextField8.requestFocus();
         this.editProduct(true);
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        jTable2.requestFocus();        
-        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.BOTTOM_RIGHT, 
+        jTable2.requestFocus();
+        Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, 5000, 
                 "Pick a Product to Add from the Inventory Table");
+
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
@@ -794,7 +798,7 @@ public class FormPurchaseOrders extends javax.swing.JPanel {
     }//GEN-LAST:event_jTextField5ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        this.receivePurchaseOrder();
+        this.returnOrder();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jTable2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable2MouseClicked

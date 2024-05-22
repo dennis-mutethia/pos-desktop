@@ -73,14 +73,14 @@ public class FormMyProfile extends javax.swing.JPanel {
 
     private void saveUserDetail() {
         String id = jTextField3.getText().trim();
-        String username = jTextField2.getText().trim().toUpperCase();
+        String username = jTextField2.getText().trim().toLowerCase();
         String name = jTextField4.getText().trim().toUpperCase();
         String phone = jTextField7.getText().trim();
         String password = jTextField9.getText().trim();
 
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = "UPDATE users "
-                    + "SET username=?, name=?, phone=?, password=?, updated_by=? "
+                    + "SET username=?, name=?, phone=?, password=?, updated_at=DATETIME(), updated_by=? "
                     + "WHERE id=?";
             
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -92,20 +92,20 @@ public class FormMyProfile extends javax.swing.JPanel {
                 pstmt.setInt(6, Application.LOGGED_IN_USER.getId());
 
                 if ("".equals(username)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, "Missing UserName");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing UserName");
                 } else {
                     int success = pstmt.executeUpdate();
 
                     if (success == 1) {
-                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, "Profile Successfully Updated");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Profile Successfully Updated");
                         this.loadUserProfile();
                     } else {
-                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, "Problem in Saving. Retry");
+                        Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
                     }
                 }
             }
         } catch (SQLException e) {
-            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 
+            Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, 
                     "Problem in Saving - User with same username already Exists");
 
             LOGGER.log(Level.SEVERE, "{0}", e);
