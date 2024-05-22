@@ -1,20 +1,14 @@
 package mobiclick.application.form.other;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
@@ -109,7 +103,8 @@ public class FormNewSale extends javax.swing.JPanel {
             String label = "<html>" + product.getName() + "<br>" + product.getRetail_price() + "</html>";
             JButton b = new JButton(label);
             b.setHorizontalAlignment(SwingConstants.CENTER);
-            jButton1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18Nf
+            b.setFont(new java.awt.Font("Times New Roman", 1, 18)); 
+            b.setBackground(Color.getColor("FFC8C8"));
             b.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
