@@ -531,7 +531,7 @@
                 <Column editable="false" title="BAR CODE" type="java.lang.Object"/>
                 <Column editable="false" title="NAME" type="java.lang.Object"/>
                 <Column editable="false" title="CATEGORY" type="java.lang.Object"/>
-                <Column editable="true" title="SUPPLIER" type="java.lang.Object"/>
+                <Column editable="false" title="SUPPLIER" type="java.lang.Object"/>
                 <Column editable="false" title="BUYING PRICE" type="java.lang.Object"/>
                 <Column editable="false" title="STOCKIST PRICE" type="java.lang.Object"/>
                 <Column editable="false" title="WHOLESALE PRICE" type="java.lang.Object"/>

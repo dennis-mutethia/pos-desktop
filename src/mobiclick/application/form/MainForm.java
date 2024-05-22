@@ -17,11 +17,13 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import mobiclick.application.Application;
 import mobiclick.application.form.other.FormDashboard;
+import mobiclick.application.form.other.FormMyProfile;
 import mobiclick.application.form.other.FormProducts;
 import mobiclick.application.form.other.FormProductCategories;
 import mobiclick.application.form.other.FormPurchaseOrderReturns;
 import mobiclick.application.form.other.FormPurchaseOrders;
 import mobiclick.application.form.other.FormSuppliers;
+import mobiclick.application.form.other.FormSystemUsers;
 import mobiclick.menu.Menu;
 import mobiclick.menu.MenuAction;
 
@@ -166,10 +168,10 @@ public class MainForm extends JLayeredPane {
                 case 8:
                     switch (subIndex) {
                         case 1:
-                            Application.showForm(new FormProducts());
+                            Application.showForm(new FormSystemUsers());
                             break;
                         case 2:
-                            Application.showForm(new FormProductCategories());
+                            Application.showForm(new FormMyProfile());
                             break;
                         default:
                             action.cancel();
