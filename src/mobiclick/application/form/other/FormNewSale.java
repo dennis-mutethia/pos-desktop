@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -20,6 +21,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
+import mobiclick.application.db.entities.Cart;
 import mobiclick.application.db.entities.Product;
 
 /**
@@ -27,18 +29,18 @@ import mobiclick.application.db.entities.Product;
  * @author DennisMutethia
  */
 public class FormNewSale extends javax.swing.JPanel {
+    private final ArrayList<Cart> cartList = new ArrayList<>();
 
     /**
      * Creates new form FormNewSale
      */
     public FormNewSale() {
         initComponents();
-        //addDynamicButtons();
         this.loadProducts();
     }
 
     private void loadProducts() {
-        String searchText = "%" + jTextField1.getText().trim() + "%";
+        String searchText = jTextField1.getText().trim() ;
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = ""
                     + "SELECT * "
@@ -48,7 +50,7 @@ public class FormNewSale extends javax.swing.JPanel {
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, searchText);
-                pstmt.setString(2, searchText);
+                pstmt.setString(2, "%" +searchText+ "%");
                 ArrayList<Product> products = new ArrayList<>();
 
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -62,8 +64,12 @@ public class FormNewSale extends javax.swing.JPanel {
                         product.setWholesale_price(rs.getDouble("wholesale_price"));
                         product.setRetail_price(rs.getDouble("retail_price"));
                         product.setQuantity(rs.getDouble("quantity"));
-
-                        products.add(product);
+                        
+                        if(product.getBarcode().equals(searchText)) {
+                            this.addToCart(product);
+                            this.showCart();
+                        }
+                        else products.add(product);
                     }
                     this.addProductsButtons(products);
                 }
@@ -72,25 +78,43 @@ public class FormNewSale extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, e.getMessage());
             LOGGER.log(Level.SEVERE, "{0}", e);
         }
+        
     }
 
-    private void pickProduct(Product product) {
-        System.out.println(product.getName());
+    private void addToCart(Product product) {
+        for (Cart cart : cartList) {
+            if (cart.getProduct().getId() == product.getId()) {
+                cart.setQty(cart.getQty() + 1);
+                jTextField1.setText(null);
+                return;
+            }
+        }
+        cartList.add(new Cart(product, 1));        
+        jTextField1.setText(null);
+    }
+    
+    private void showCart(){
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+        for (Cart cart : cartList) {
+            model.addRow(new Object[]{ cart.getProduct().getName(), cart.getProduct().getRetail_price(), cart.getQty(), cart.getProduct().getRetail_price() * cart.getQty()  });
+        }        
     }
 
     private void addProductsButtons(ArrayList<Product> products) {
-        int r = (int) Math.sqrt(products.size());
+        int r = products.size()> 0 && products.size() < 50  ? (int) Math.sqrt(products.size()) : 7;
         jPanel1.removeAll();
         jPanel1.setLayout(new GridLayout(r, r));
         for (Product product : products) {
-            String label = "<html>" +product.getName()+ "<br>" +product.getRetail_price()+ "</html>";
+            String label = "<html>" + product.getName() + "<br>" + product.getRetail_price() + "</html>";
             JButton b = new JButton(label);
             b.setHorizontalAlignment(SwingConstants.CENTER);
-            jButton1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
+            jButton1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18Nf
             b.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    pickProduct(product);
+                    addToCart(product);
+                    showCart();
                 }
             });
             jPanel1.add(b);
@@ -110,13 +134,21 @@ public class FormNewSale extends javax.swing.JPanel {
 
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jPanel1 = new javax.swing.JPanel();
 
         jTextField1.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField1ActionPerformed(evt);
+            }
+        });
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField1KeyReleased(evt);
             }
         });
 
@@ -128,27 +160,54 @@ public class FormNewSale extends javax.swing.JPanel {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 650, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 623, Short.MAX_VALUE)
-        );
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ITEM NAME", "PRICE", "QTY", "TOTAL"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jTable1.setShowHorizontalLines(true);
+        jTable1.setShowVerticalLines(true);
+        jScrollPane2.setViewportView(jTable1);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 323, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 508, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 642, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 627, Short.MAX_VALUE)
+        );
+
+        jScrollPane1.setViewportView(jPanel1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -162,7 +221,7 @@ public class FormNewSale extends javax.swing.JPanel {
                         .addComponent(jButton1))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 601, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -174,10 +233,10 @@ public class FormNewSale extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -190,11 +249,18 @@ public class FormNewSale extends javax.swing.JPanel {
         this.loadProducts();
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
+        this.loadProducts();
+    }//GEN-LAST:event_jTextField1KeyReleased
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 }

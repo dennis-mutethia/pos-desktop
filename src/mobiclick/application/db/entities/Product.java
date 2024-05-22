@@ -170,8 +170,6 @@ public class Product {
      */
     public void setRestock_value(double restock_value) {
         this.restock_value = restock_value;
-    }
-    
-    
+    }    
 
 }
