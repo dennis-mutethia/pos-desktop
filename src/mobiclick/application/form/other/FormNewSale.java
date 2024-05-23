@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
@@ -23,6 +24,7 @@ import mobiclick.application.db.entities.Product;
  * @author DennisMutethia
  */
 public class FormNewSale extends javax.swing.JPanel {
+
     private final ArrayList<Cart> cartList = new ArrayList<>();
 
     /**
@@ -30,11 +32,20 @@ public class FormNewSale extends javax.swing.JPanel {
      */
     public FormNewSale() {
         initComponents();
+        this.init();
         this.loadProducts();
     }
 
+    private void init() {
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.RIGHT);
+        for (int i=0; i<jTable1.getColumnCount(); i++){   
+            jTable1.getColumnModel().getColumn(i).setCellRenderer(dtcr);
+        }
+    }
+
     private void loadProducts() {
-        String searchText = jTextField1.getText().trim() ;
+        String searchText = jTextField1.getText().trim();
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = ""
                     + "SELECT * "
@@ -44,7 +55,7 @@ public class FormNewSale extends javax.swing.JPanel {
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, searchText);
-                pstmt.setString(2, "%" +searchText+ "%");
+                pstmt.setString(2, "%" + searchText + "%");
                 ArrayList<Product> products = new ArrayList<>();
 
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -58,12 +69,13 @@ public class FormNewSale extends javax.swing.JPanel {
                         product.setWholesale_price(rs.getDouble("wholesale_price"));
                         product.setRetail_price(rs.getDouble("retail_price"));
                         product.setQuantity(rs.getDouble("quantity"));
-                        
-                        if(product.getBarcode().equals(searchText)) {
+
+                        if (product.getBarcode().equals(searchText)) {
                             this.addToCart(product);
                             this.showCart();
+                        } else {
+                            products.add(product);
                         }
-                        else products.add(product);
                     }
                     this.addProductsButtons(products);
                 }
@@ -72,7 +84,7 @@ public class FormNewSale extends javax.swing.JPanel {
             JOptionPane.showMessageDialog(this, e.getMessage());
             LOGGER.log(Level.SEVERE, "{0}", e);
         }
-        
+
     }
 
     private void addToCart(Product product) {
@@ -83,27 +95,27 @@ public class FormNewSale extends javax.swing.JPanel {
                 return;
             }
         }
-        cartList.add(new Cart(product, 1));        
+        cartList.add(new Cart(product, 1));
         jTextField1.setText(null);
     }
-    
-    private void showCart(){
+
+    private void showCart() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
         for (Cart cart : cartList) {
-            model.addRow(new Object[]{ cart.getProduct().getName(), cart.getProduct().getRetail_price(), cart.getQty(), cart.getProduct().getRetail_price() * cart.getQty()  });
-        }        
+            model.addRow(new Object[]{cart.getProduct().getName(), cart.getProduct().getRetail_price(), cart.getQty(), cart.getProduct().getRetail_price() * cart.getQty()});
+        }
     }
 
     private void addProductsButtons(ArrayList<Product> products) {
-        int r = products.size()> 0 && products.size() < 50  ? (int) Math.sqrt(products.size()) : 7;
+        int r = products.size() > 0 && products.size() < 50 ? (int) Math.sqrt(products.size()) : 7;
         jPanel1.removeAll();
         jPanel1.setLayout(new GridLayout(r, r));
         for (Product product : products) {
             String label = "<html>" + product.getName() + "<br>" + product.getRetail_price() + "</html>";
             JButton b = new JButton(label);
             b.setHorizontalAlignment(SwingConstants.CENTER);
-            b.setFont(new java.awt.Font("Times New Roman", 1, 18)); 
+            b.setFont(new java.awt.Font("Times New Roman", 1, 18));
             b.setBackground(Color.getColor("FFC8C8"));
             b.addActionListener(new java.awt.event.ActionListener() {
                 @Override

@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import mobiclick.application.Application;
 import static mobiclick.application.Application.DB_URL;
@@ -20,9 +22,21 @@ public class FormReceivedPurchaseOrders extends javax.swing.JPanel {
 
     public FormReceivedPurchaseOrders() {
         initComponents();
+        init();
         this.loadReceivedOrders();
         this.loadProducts();
         this.clearProductDetail();
+    }
+    
+    private void init() {
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i=0; i<jTable1.getColumnCount(); i++){   
+            jTable1.getColumnModel().getColumn(i).setCellRenderer(dtcr);
+        }
+        for (int i=0; i<jTable2.getColumnCount(); i++){   
+            jTable2.getColumnModel().getColumn(i).setCellRenderer(dtcr);
+        }
     }
 
     private void loadProducts() {
@@ -39,7 +53,8 @@ public class FormReceivedPurchaseOrders extends javax.swing.JPanel {
                     + "JOIN product_categories ON product_categories.id=products.category_id "
                     + "JOIN suppliers ON suppliers.id=products.supplier_id "
                     + "WHERE products.status = 1 AND product_categories.status=1 "
-                    + "AND (products.name LIKE ? OR product_categories.name LIKE ?)";
+                    + "AND (products.name LIKE ? OR product_categories.name LIKE ?) "
+                    + "ORDER BY products.name";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, searchText);
@@ -333,7 +348,7 @@ public class FormReceivedPurchaseOrders extends javax.swing.JPanel {
 
             },
             new String [] {
-                "ORDER ID", "PRODUCT ID", "ORDER DATE", "PRODUCT NAME", "CATEGORY", "SUPPLIER", "RESTOCK VALUE", "IN STOCK", "BUYING PRICE", "ORDER QTY", "TOTAL AMOUNT"
+                "OID", "PID", "ORDER DATE", "PRODUCT NAME", "CATEGORY", "SUPPLIER", "RESTOCK VALUE", "IN STOCK", "BUYING PRICE", "ORDER QTY", "TOTAL AMOUNT"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -640,7 +655,7 @@ public class FormReceivedPurchaseOrders extends javax.swing.JPanel {
 
             },
             new String [] {
-                "PRODUCT ID", "BAR CODE", "NAME", "CATEGORY", "SUPPLIER", "BUYING PRICE", "STOCKIST PRICE", "WHOLESALE PRICE", "RETAIL PRICE", "QUANTITY", "RESTOCK VALUE"
+                "PID", "BAR CODE", "NAME", "CATEGORY", "SUPPLIER", "BUYING PRICE", "STOCKIST PRICE", "WHOLESALE PRICE", "RETAIL PRICE", "QUANTITY", "RESTOCK VALUE"
             }
         ) {
             boolean[] canEdit = new boolean [] {

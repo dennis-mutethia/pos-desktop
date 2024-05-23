@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import mobiclick.application.Application;
 import static mobiclick.application.Application.DB_URL;
@@ -20,7 +22,16 @@ public class FormSuppliers extends javax.swing.JPanel {
 
     public FormSuppliers() {
         initComponents();
+        init();
         loadSuppliers();
+    }
+    
+    private void init() {
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i=0; i<jTable2.getColumnCount(); i++){   
+            jTable2.getColumnModel().getColumn(i).setCellRenderer(dtcr);
+        }
     }
     
     private void loadSuppliers() {
@@ -31,7 +42,8 @@ public class FormSuppliers extends javax.swing.JPanel {
             String query = ""
                     + "SELECT id, name, phone "
                     + "FROM suppliers "
-                    + "WHERE status = 1 AND name LIKE ?";
+                    + "WHERE status = 1 AND name LIKE ? "
+                    + "ORDER BY name";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, searchText);
@@ -145,7 +157,7 @@ public class FormSuppliers extends javax.swing.JPanel {
 
             },
             new String [] {
-                "SUPPLIER ID", "NAME", "PHONE"
+                "SID", "NAME", "PHONE"
             }
         ) {
             boolean[] canEdit = new boolean [] {

@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import mobiclick.application.Application;
 import static mobiclick.application.Application.DB_URL;
@@ -20,7 +22,16 @@ public class FormProductCategories extends javax.swing.JPanel {
 
     public FormProductCategories() {
         initComponents();
+        init();
         loadProductCategories();
+    }
+    
+    private void init() {
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i=0; i<jTable2.getColumnCount(); i++){   
+            jTable2.getColumnModel().getColumn(i).setCellRenderer(dtcr);
+        }
     }
     
     private void loadProductCategories() {
@@ -31,7 +42,8 @@ public class FormProductCategories extends javax.swing.JPanel {
             String query = ""
                     + "SELECT id, name, description "
                     + "FROM product_categories "
-                    + "WHERE status = 1 AND name LIKE ?";
+                    + "WHERE status = 1 AND name LIKE ? "
+                    + "ORDER BY name";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, searchText);
@@ -146,7 +158,7 @@ public class FormProductCategories extends javax.swing.JPanel {
 
             },
             new String [] {
-                "CATEGORY ID", "NAME", "DESCRIPTION"
+                "CID", "NAME", "DESCRIPTION"
             }
         ) {
             boolean[] canEdit = new boolean [] {

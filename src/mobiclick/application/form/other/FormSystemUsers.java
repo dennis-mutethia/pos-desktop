@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import mobiclick.application.Application;
 import static mobiclick.application.Application.DB_URL;
@@ -22,11 +24,19 @@ public class FormSystemUsers extends javax.swing.JPanel {
 
     public FormSystemUsers() {
         initComponents();
-        //lb.putClientProperty(FlatClientProperties.STYLE, "" + "font:$h1.font");
+        init();
 
         this.loadProducts();
         this.populateUserRolesCombo();
         this.clearUserDetail();
+    }
+    
+    private void init() {
+        DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+        dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i=0; i<jTable1.getColumnCount(); i++){   
+            jTable1.getColumnModel().getColumn(i).setCellRenderer(dtcr);
+        }
     }
     
     private void populateUserRolesCombo() {
@@ -55,7 +65,8 @@ public class FormSystemUsers extends javax.swing.JPanel {
                     + "FROM users "
                     + "JOIN user_roles ON user_roles.id=users.role_id "
                     + "WHERE users.status = 1 "
-                    + "AND (users.name LIKE ? OR user_roles.name LIKE ?)";
+                    + "AND (users.name LIKE ? OR user_roles.name LIKE ?) "
+                    + "ORDER BY users.username";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, searchText);
@@ -185,7 +196,7 @@ public class FormSystemUsers extends javax.swing.JPanel {
 
             },
             new String [] {
-                "USER ID", "USERNAME", "NAME", "PHONE NO", "ROLE"
+                "UID", "USERNAME", "NAME", "PHONE NO", "ROLE"
             }
         ) {
             boolean[] canEdit = new boolean [] {
