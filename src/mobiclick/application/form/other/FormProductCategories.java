@@ -140,7 +140,7 @@ public class FormProductCategories extends javax.swing.JPanel {
         jTextField5 = new javax.swing.JTextField();
         jLabel14 = new javax.swing.JLabel();
 
-        jTable2.setFont(new java.awt.Font("Times New Roman", 1, 12)); // NOI18N
+        jTable2.setFont(new java.awt.Font("Courier New", 1, 12)); // NOI18N
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 

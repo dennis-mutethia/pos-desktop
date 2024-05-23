@@ -97,8 +97,11 @@ public class Application extends javax.swing.JFrame {
         FlatRobotoFont.install();
         FlatLaf.registerCustomDefaultsSource("mobiclick.theme");
         UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 13));
+        
         //Set default theme
         FlatMacLightLaf.setup();
+        //FlatMacDarkLaf.setup();
+        
         java.awt.EventQueue.invokeLater(() -> {
             new DBInit().loadSqlFile();
             app = new Application();

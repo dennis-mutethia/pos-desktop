@@ -326,7 +326,7 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
 
-        jTable1.setFont(new java.awt.Font("Times New Roman", 1, 12)); // NOI18N
+        jTable1.setFont(new java.awt.Font("Courier New", 1, 12)); // NOI18N
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -632,7 +632,7 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
             }
         });
 
-        jTable2.setFont(new java.awt.Font("Times New Roman", 1, 12)); // NOI18N
+        jTable2.setFont(new java.awt.Font("Courier New", 1, 12)); // NOI18N
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
