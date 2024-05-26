@@ -40,7 +40,8 @@ public class Menu extends JPanel {
         {"~OTHER~"},
         {"Settings", "System Users", "My Profile"},
         {"About"},
-        {"Logout"}
+        {"Logout"},
+        {"Exit"}
     };
 
     public boolean isMenuFull() {

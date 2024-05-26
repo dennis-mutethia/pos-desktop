@@ -185,6 +185,9 @@ public class MainForm extends JLayeredPane {
                 case 10:
                     Application.logout();
                     break;
+                case 11:
+                    System.exit(0);
+                    break;
                 default:
                     action.cancel();
                     break;
