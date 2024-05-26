@@ -8,6 +8,8 @@ import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.NetworkInterface;
@@ -29,26 +31,27 @@ import raven.toast.Notifications;
  * @author mobiclick
  */
 public class Application extends javax.swing.JFrame {
+
     public static User LOGGED_IN_USER = null;
     public final static String DB_URL = "jdbc:sqlite:pos.db";
     public final static Logger LOGGER = Logger.getLogger(Application.class.getName());
     public final static String DEVICE_MAC_ADDRESS = getMacAddress();
-    
+
     private static Application app;
     private final MainForm mainForm;
     private final LoginForm loginForm;
-    
+
     public final static Properties APPLICATION_PROPERTIES = new Properties();
 
     static {
         try (FileInputStream fis = new FileInputStream("application.properties")) {
-            APPLICATION_PROPERTIES.load(fis);            
+            APPLICATION_PROPERTIES.load(fis);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "{0}", ex);
         }
     }
-    
-    private static String getMacAddress(){
+
+    private static String getMacAddress() {
         try {
             Enumeration<NetworkInterface> networks = NetworkInterface.getNetworkInterfaces();
             while (networks.hasMoreElements()) {
@@ -78,7 +81,15 @@ public class Application extends javax.swing.JFrame {
         setContentPane(loginForm);
         getRootPane().putClientProperty(FlatClientProperties.FULL_WINDOW_CONTENT, true);
         Notifications.getInstance().setJFrame(this);
-        
+
+        // Get the default screen device
+        GraphicsDevice device = GraphicsEnvironment
+                .getLocalGraphicsEnvironment()
+                .getDefaultScreenDevice();
+
+        // Set the JFrame to full screen
+        device.setFullScreenWindow(this);
+
     }
 
     public static void showForm(Component component) {
@@ -133,11 +144,11 @@ public class Application extends javax.swing.JFrame {
         FlatRobotoFont.install();
         FlatLaf.registerCustomDefaultsSource("mobiclick.theme");
         UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 13));
-        
+
         //Set default theme
         FlatMacLightLaf.setup();
         //FlatMacDarkLaf.setup();
-        
+
         java.awt.EventQueue.invokeLater(() -> {
             new DBInit().loadSqlFile();
             app = new Application();
