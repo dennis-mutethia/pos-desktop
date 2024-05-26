@@ -251,15 +251,19 @@ public class FormReceivedPurchaseOrders extends javax.swing.JPanel {
 
         try (Connection conn = DBConnect.getConnection()) {
             String query = "UPDATE purchase_orders "
-                    + "SET status=?, buying_price=?, order_qty=?, updated_at=NOW(), updated_by=? "
-                    + "WHERE id=?";
+                    + "JOIN products ON purchase_orders.product_id = products.id "
+                    + "SET purchase_orders.status=?, purchase_orders.buying_price=?, purchase_orders.order_qty=?, purchase_orders.updated_at=NOW(), purchase_orders.updated_by=?, "
+                    + "products.quantity=quantity-?, products.updated_at=NOW(), products.updated_by=? "
+                    + "WHERE purchase_orders.id = ?";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setInt(1, 2);
                 pstmt.setDouble(2, !"".equals(buying_price) ? Double.parseDouble(buying_price) : 0.0);
                 pstmt.setDouble(3, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
                 pstmt.setInt(4, Application.LOGGED_IN_USER.getId());
-                pstmt.setString(5, id);
+                pstmt.setDouble(5, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
+                pstmt.setInt(6, Application.LOGGED_IN_USER.getId());
+                pstmt.setString(7, id);
 
                 if ("".equals(buying_price)) {
                     Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Buying Price");
@@ -268,32 +272,17 @@ public class FormReceivedPurchaseOrders extends javax.swing.JPanel {
                 } else {
                     int success = pstmt.executeUpdate();
 
-                    if (success == 1) {
+                    if (success > 0) {
                         Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Order Returned Successfully");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Products Inventory Updated Successfully");
+                        
                         this.loadReceivedOrders();
-                                
-                        query = "UPDATE products "
-                                + "SET quantity=quantity-?, updated_at=NOW(), updated_by=? "
-                                + "WHERE id=?";
+                        this.loadProducts();
+                        this.clearProductDetail();
 
-                        try (PreparedStatement pstmt2 = conn.prepareStatement(query)) {
-                            pstmt2.setDouble(1, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
-                            pstmt2.setInt(2, Application.LOGGED_IN_USER.getId());
-                            pstmt2.setString(3, product_id);
-                            success = pstmt2.executeUpdate();
-
-                            if (success == 1) {
-                                Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Products Inventory Updated Successfully");
-                                this.loadProducts();
-                                this.clearProductDetail();
-
-                                jButton2.setEnabled(false);
-                                jButton3.setEnabled(false);
-                                jButton5.setEnabled(false);
-                            } else {
-                                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
-                            }
-                        }
+                        jButton2.setEnabled(false);
+                        jButton3.setEnabled(false);
+                        jButton5.setEnabled(false);                                  
 
                     } else {
                         Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");

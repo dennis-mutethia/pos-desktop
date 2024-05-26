@@ -26,18 +26,17 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
         this.loadProducts();
         this.clearProductDetail();
     }
-    
+
     private void init() {
         DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
         dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-        for (int i=0; i<jTable1.getColumnCount(); i++){   
+        for (int i = 0; i < jTable1.getColumnCount(); i++) {
             jTable1.getColumnModel().getColumn(i).setCellRenderer(dtcr);
         }
-        for (int i=0; i<jTable2.getColumnCount(); i++){   
+        for (int i = 0; i < jTable2.getColumnCount(); i++) {
             jTable2.getColumnModel().getColumn(i).setCellRenderer(dtcr);
         }
     }
-
 
     private void loadProducts() {
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
@@ -217,7 +216,7 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
                 }
 
                 if ("".equals(buying_price)) {
-                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000,   "Missing Buying Price");
+                    Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Buying Price");
                 } else if ("".equals(order_qty)) {
                     Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Order Quantity");
                 } else {
@@ -249,49 +248,39 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
 
         try (Connection conn = DBConnect.getConnection()) {
             String query = "UPDATE purchase_orders "
-                    + "SET status=?, buying_price=?, order_qty=?, received_at=NOW(), updated_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP, updated_by=? "
-                    + "WHERE id=?";
+                    + "JOIN products ON purchase_orders.product_id = products.id "
+                    + "SET purchase_orders.status=?, purchase_orders.buying_price=?, purchase_orders.order_qty=?, purchase_orders.received_at=NOW(), purchase_orders.updated_at=NOW(), purchase_orders.updated_by=?, "
+                    + "products.quantity=quantity+?, products.updated_at=NOW(), products.updated_by=? "
+                    + "WHERE purchase_orders.id = ?";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setInt(1, 1);
                 pstmt.setDouble(2, !"".equals(buying_price) ? Double.parseDouble(buying_price) : 0.0);
                 pstmt.setDouble(3, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
                 pstmt.setInt(4, Application.LOGGED_IN_USER.getId());
-                pstmt.setString(5, id);
-
+                pstmt.setDouble(5, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
+                pstmt.setInt(6, Application.LOGGED_IN_USER.getId());
+                pstmt.setString(7, id);
+                
                 if ("".equals(buying_price)) {
                     Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Buying Price");
                 } else if ("".equals(order_qty)) {
                     Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_RIGHT, 5000, "Missing Order Quantity");
                 } else {
                     int success = pstmt.executeUpdate();
+                    System.out.print(success);
 
-                    if (success == 1) {
+                    if (success > 0) {
                         Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Purchase Order Received Successfully");
+                        Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Products Inventory Updated Successfully");
+
                         this.loadPurchaseOrders();
-                                
-                        query = "UPDATE products "
-                                + "SET quantity=quantity+?, updated_at=NOW(), updated_by=? "
-                                + "WHERE id=?";
+                        this.loadProducts();
+                        this.clearProductDetail();
 
-                        try (PreparedStatement pstmt2 = conn.prepareStatement(query)) {
-                            pstmt2.setDouble(1, !"".equals(order_qty) ? Double.parseDouble(order_qty) : 0.0);
-                            pstmt2.setInt(2, Application.LOGGED_IN_USER.getId());
-                            pstmt2.setString(3, product_id);
-                            success = pstmt2.executeUpdate();
-
-                            if (success == 1) {
-                                Notifications.getInstance().show(Notifications.Type.INFO, Notifications.Location.TOP_RIGHT, 5000, "Products Inventory Updated Successfully");
-                                this.loadProducts();
-                                this.clearProductDetail();
-
-                                jButton2.setEnabled(false);
-                                jButton3.setEnabled(false);
-                                jButton5.setEnabled(false);
-                            } else {
-                                Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
-                            }
-                        }
+                        jButton2.setEnabled(false);
+                        jButton3.setEnabled(false);
+                        jButton5.setEnabled(false);                        
 
                     } else {
                         Notifications.getInstance().show(Notifications.Type.ERROR, Notifications.Location.TOP_RIGHT, 5000, "Problem in Saving. Retry");
@@ -801,8 +790,8 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        jTable2.requestFocus();        
-        Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, 5000, 
+        jTable2.requestFocus();
+        Notifications.getInstance().show(Notifications.Type.WARNING, Notifications.Location.TOP_CENTER, 5000,
                 "Pick a Product to Add from the Inventory Table");
     }//GEN-LAST:event_jButton4ActionPerformed
 
