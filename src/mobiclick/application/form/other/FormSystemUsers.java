@@ -1,8 +1,6 @@
 package mobiclick.application.form.other;
 
-import com.formdev.flatlaf.FlatClientProperties;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,8 +10,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import mobiclick.application.Application;
-import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
+import mobiclick.application.db.DBConnect;
 import raven.toast.Notifications;
 
 /**
@@ -40,7 +38,7 @@ public class FormSystemUsers extends javax.swing.JPanel {
     }
     
     private void populateUserRolesCombo() {
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = "SELECT name FROM user_roles WHERE status=1 ORDER BY name";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -59,7 +57,7 @@ public class FormSystemUsers extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
         String searchText = "%" + jTextField1.getText().trim() + "%";
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = ""
                     + "SELECT users.id, users.username, users.name, users.phone, user_roles.name role_name "
                     + "FROM users "
@@ -124,13 +122,13 @@ public class FormSystemUsers extends javax.swing.JPanel {
         String phone = jTextField7.getText().trim();
         String role = jComboBox2.getSelectedItem().toString().trim();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = "INSERT INTO users(username, name, phone, role_id, created_by) "
                     + "VALUES(?,?,?,(SELECT id FROM user_roles WHERE name=?),?)";
 
             if (!"".equals(id)) {
                 query = "UPDATE users "
-                        + "SET username=?, name=?, phone=?, role_id=(SELECT id FROM user_roles WHERE name=?), updated_at=DATETIME(), updated_by=? "
+                        + "SET username=?, name=?, phone=?, role_id=(SELECT id FROM user_roles WHERE name=?), updated_at=NOW(), updated_by=? "
                         + "WHERE id=?";
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {

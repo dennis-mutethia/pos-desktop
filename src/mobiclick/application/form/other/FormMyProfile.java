@@ -1,15 +1,14 @@
 package mobiclick.application.form.other;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import mobiclick.application.Application;
-import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
+import mobiclick.application.db.DBConnect;
 import raven.toast.Notifications;
 
 /**
@@ -26,7 +25,7 @@ public class FormMyProfile extends javax.swing.JPanel {
     }
     
     private void loadUserProfile() {
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = ""
                     + "SELECT users.id, users.username, users.name, users.phone, user_roles.name role_name, password "
                     + "FROM users "
@@ -78,9 +77,9 @@ public class FormMyProfile extends javax.swing.JPanel {
         String phone = jTextField7.getText().trim();
         String password = jTextField9.getText().trim();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = "UPDATE users "
-                    + "SET username=?, name=?, phone=?, password=?, updated_at=DATETIME(), updated_by=? "
+                    + "SET username=?, name=?, phone=?, password=?, updated_at=NOW(), updated_by=? "
                     + "WHERE id=?";
             
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {

@@ -1,8 +1,6 @@
 package mobiclick.application.form.other;
 
-import com.formdev.flatlaf.FlatClientProperties;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,8 +10,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import mobiclick.application.Application;
-import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
+import mobiclick.application.db.DBConnect;
 import raven.toast.Notifications;
 
 /**
@@ -41,7 +39,7 @@ public class FormProducts extends javax.swing.JPanel {
     }
 
     private void populateProductCategoriesCombo() {
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = "SELECT name FROM product_categories WHERE status=1 ORDER BY name";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -57,7 +55,7 @@ public class FormProducts extends javax.swing.JPanel {
     }
     
     private void populateSuppliersCombo() {
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = "SELECT name FROM suppliers WHERE status=1 ORDER BY name";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -76,7 +74,7 @@ public class FormProducts extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
         String searchText = "%" + jTextField1.getText().trim() + "%";
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = ""
                     + "SELECT products.id, products.barcode, products.name, "
                     + "products.buying_price, products.stockist_price, products.wholesale_price, products.retail_price, "
@@ -120,17 +118,17 @@ public class FormProducts extends javax.swing.JPanel {
     private void setProductDetail() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         int selectedRowIndex = jTable1.getSelectedRow();
-        jTextField3.setText(model.getValueAt(selectedRowIndex, 0).toString());
-        jTextField2.setText(model.getValueAt(selectedRowIndex, 1).toString());
-        jTextField4.setText(model.getValueAt(selectedRowIndex, 2).toString());
-        jComboBox1.setSelectedItem(model.getValueAt(selectedRowIndex, 3).toString());
-        jComboBox2.setSelectedItem(model.getValueAt(selectedRowIndex, 4).toString());
-        jTextField7.setText(model.getValueAt(selectedRowIndex, 5).toString());
-        jTextField6.setText(model.getValueAt(selectedRowIndex, 6).toString());
-        jTextField8.setText(model.getValueAt(selectedRowIndex, 7).toString());
-        jTextField9.setText(model.getValueAt(selectedRowIndex, 8).toString());
-        jTextField10.setText(model.getValueAt(selectedRowIndex, 9).toString());
-        jTextField11.setText(model.getValueAt(selectedRowIndex, 10).toString());
+        jTextField3.setText(String.valueOf(model.getValueAt(selectedRowIndex, 0)));
+        jTextField2.setText(String.valueOf(model.getValueAt(selectedRowIndex, 1)));
+        jTextField4.setText(String.valueOf(model.getValueAt(selectedRowIndex, 2)));
+        jComboBox1.setSelectedItem(String.valueOf(model.getValueAt(selectedRowIndex, 3)));
+        jComboBox2.setSelectedItem(String.valueOf(model.getValueAt(selectedRowIndex, 4)));
+        jTextField7.setText(String.valueOf(model.getValueAt(selectedRowIndex, 5)));
+        jTextField6.setText(String.valueOf(model.getValueAt(selectedRowIndex, 6)));
+        jTextField8.setText(String.valueOf(model.getValueAt(selectedRowIndex, 7)));
+        jTextField9.setText(String.valueOf(model.getValueAt(selectedRowIndex, 8)));
+        jTextField10.setText(String.valueOf(model.getValueAt(selectedRowIndex, 9)));
+        jTextField11.setText(String.valueOf(model.getValueAt(selectedRowIndex, 10)));
         jButton3.setEnabled(true);
     }
 
@@ -175,13 +173,13 @@ public class FormProducts extends javax.swing.JPanel {
         String quantity = jTextField10.getText().trim();
         String restock_value = jTextField11.getText().trim();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = "INSERT INTO products(barcode, name, category_id, supplier_id, buying_price, stockist_price, wholesale_price, retail_price, quantity, restock_value, created_by) "
                     + "VALUES(?,?,(SELECT id FROM product_categories WHERE name=?),(SELECT id FROM suppliers WHERE name=?),?,?,?,?,?,?,?)";
 
             if (!"".equals(id)) {
                 query = "UPDATE products "
-                        + "SET barcode=?, name=?, category_id=(SELECT id FROM product_categories WHERE name=?),supplier_id=(SELECT id FROM suppliers WHERE name=?), buying_price=?, stockist_price=?, wholesale_price=?, retail_price=?, quantity=?, restock_value=?, updated_at=DATETIME(), updated_by=? "
+                        + "SET barcode=?, name=?, category_id=(SELECT id FROM product_categories WHERE name=?),supplier_id=(SELECT id FROM suppliers WHERE name=?), buying_price=?, stockist_price=?, wholesale_price=?, retail_price=?, quantity=?, restock_value=?, updated_at=NOW(), updated_by=? "
                         + "WHERE id=?";
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {

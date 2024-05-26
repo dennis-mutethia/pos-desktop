@@ -1,95 +1,95 @@
 CREATE TABLE IF NOT EXISTS user_roles (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  description TEXT DEFAULT NULL,
-  created_at NUMERIC DEFAULT NULL DEFAULT CURRENT_TIMESTAMP,
-  created_by INTEGER DEFAULT NULL,
-  updated_at NUMERIC DEFAULT NULL,
-  updated_by INTEGER DEFAULT NULL,
-  status INTEGER DEFAULT 1,
-  UNIQUE (name, status)
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL,
+  description VARCHAR(64) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_by INT DEFAULT NULL,
+  updated_at DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT DEFAULT NULL,
+  status INT DEFAULT 1,
+  UNIQUE KEY (name, status)
 );
-INSERT OR IGNORE INTO user_roles(name,description) 
+INSERT IGNORE INTO user_roles(name, description) 
 VALUES
-    ('Admin','All Permissions'), 
-    ('Supervisor','Supervisor Permissions'), 
-    ('Cashier','Cashier Permissions'), 
-    ('Waiter','Waiter Permissions');
+  ('Admin','All Permissions'), 
+  ('Supervisor','Supervisor Permissions'), 
+  ('Cashier','Cashier Permissions'), 
+  ('Waiter','Waiter Permissions');
 
 CREATE TABLE IF NOT EXISTS users (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  username TEXT NOT NULL,
-  password TEXT DEFAULT NULL,
-  role_id INTEGER DEFAULT NULL,
-  name TEXT DEFAULT NULL,
-  phone TEXT DEFAULT NULL,
-  created_at NUMERIC DEFAULT NULL DEFAULT CURRENT_TIMESTAMP,
-  created_by INTEGER DEFAULT NULL,
-  updated_at NUMERIC DEFAULT NULL,
-  updated_by INTEGER DEFAULT NULL,
-  status INTEGER DEFAULT 1,
-  UNIQUE (username, status)
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(64) NOT NULL,
+  password VARCHAR(64) DEFAULT NULL,
+  role_id INT DEFAULT NULL,
+  name VARCHAR(64) DEFAULT NULL,
+  phone VARCHAR(64) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_by INT DEFAULT NULL,
+  updated_at DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT DEFAULT NULL,
+  status INT DEFAULT 1,
+  UNIQUE KEY (username, status)
 );
-INSERT OR IGNORE INTO users(username,password,role_id,name) 
-VALUES('admin','admin',1,'Admin');
+INSERT IGNORE INTO users(username, password, role_id, name) 
+VALUES('admin', 'admin', 1, 'Admin');
 
 CREATE TABLE IF NOT EXISTS product_categories (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  description TEXT DEFAULT NULL,
-  created_at NUMERIC DEFAULT NULL DEFAULT CURRENT_TIMESTAMP,
-  created_by INTEGER DEFAULT NULL,
-  updated_at NUMERIC DEFAULT NULL,
-  updated_by INTEGER DEFAULT NULL,
-  status INTEGER DEFAULT 1,
-  UNIQUE (name, status)
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL,
+  description VARCHAR(64) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_by INT DEFAULT NULL,
+  updated_at DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT DEFAULT NULL,
+  status INT DEFAULT 1,
+  UNIQUE KEY (name, status)
 );
-INSERT OR IGNORE INTO product_categories(name) 
+INSERT IGNORE INTO product_categories(name) 
 VALUES('');
 
 CREATE TABLE IF NOT EXISTS suppliers (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name TEXT DEFAULT NULL,
-  phone TEXT DEFAULT NULL,
-  created_at NUMERIC DEFAULT NULL DEFAULT CURRENT_TIMESTAMP,
-  created_by INTEGER DEFAULT NULL,
-  updated_at NUMERIC DEFAULT NULL,
-  updated_by INTEGER DEFAULT NULL,
-  status INTEGER DEFAULT 1,
-  UNIQUE (name, status)
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) DEFAULT NULL,
+  phone VARCHAR(64) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_by INT DEFAULT NULL,
+  updated_at DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT DEFAULT NULL,
+  status INT DEFAULT 1,
+  UNIQUE KEY (name, status)
 );
-INSERT OR IGNORE INTO suppliers(name) 
+INSERT IGNORE INTO suppliers(name) 
 VALUES('');
 
 CREATE TABLE IF NOT EXISTS products (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  barcode TEXT DEFAULT NULL,
-  supplier_id INTEGER,
-  category_id INTEGER,
-  buying_price REAL DEFAULT NULL,
-  stockist_price REAL DEFAULT NULL,
-  wholesale_price REAL DEFAULT NULL,
-  retail_price REAL DEFAULT NULL,
-  quantity REAL DEFAULT NULL,
-  restock_value REAL DEFAULT NULL,
-  created_at NUMERIC DEFAULT NULL DEFAULT CURRENT_TIMESTAMP,
-  created_by INTEGER DEFAULT NULL,
-  updated_at NUMERIC DEFAULT NULL,
-  updated_by INTEGER DEFAULT NULL,
-  status INTEGER DEFAULT 1,
-  UNIQUE (name, category_id, status)
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL,
+  barcode VARCHAR(64) DEFAULT NULL,
+  supplier_id INT,
+  category_id INT,
+  buying_price DECIMAL(10, 2) DEFAULT NULL,
+  stockist_price DECIMAL(10, 2) DEFAULT NULL,
+  wholesale_price DECIMAL(10, 2) DEFAULT NULL,
+  retail_price DECIMAL(10, 2) DEFAULT NULL,
+  quantity DECIMAL(10, 2) DEFAULT NULL,
+  restock_value DECIMAL(10, 2) DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_by INT DEFAULT NULL,
+  updated_at DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT DEFAULT NULL,
+  status INT DEFAULT 1,
+  UNIQUE KEY (name, category_id, status)
 );
 
 CREATE TABLE IF NOT EXISTS purchase_orders (
-  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-  product_id INTEGER NOT NULL,
-  buying_price REAL DEFAULT NULL,
-  order_qty REAL DEFAULT NULL,
-  received_at INTEGER DEFAULT NULL,
-  created_at NUMERIC DEFAULT NULL DEFAULT CURRENT_TIMESTAMP,
-  created_by INTEGER DEFAULT NULL,
-  updated_at NUMERIC DEFAULT NULL,
-  updated_by INTEGER DEFAULT NULL,
-  status INTEGER DEFAULT 0
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  buying_price DECIMAL(10, 2) DEFAULT NULL,
+  order_qty DECIMAL(10, 2) DEFAULT NULL,
+  received_at DATETIME DEFAULT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_by INT DEFAULT NULL,
+  updated_at DATETIME DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  updated_by INT DEFAULT NULL,
+  status INT DEFAULT 0
 );

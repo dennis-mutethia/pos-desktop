@@ -1,7 +1,6 @@
 package mobiclick.application.form.other;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,8 +9,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import mobiclick.application.Application;
-import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
+import mobiclick.application.db.DBConnect;
 import raven.toast.Notifications;
 
 /**
@@ -44,7 +43,7 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         model.setRowCount(0);
         String searchText = "%" + jTextField1.getText().trim() + "%";
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = ""
                     + "SELECT products.id, products.barcode, products.name, "
                     + "products.buying_price, products.stockist_price, products.wholesale_price, products.retail_price, "
@@ -88,7 +87,7 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         model.setRowCount(0);
         String searchText = "%" + jTextField1.getText().trim() + "%";
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = ""
                     + "SELECT purchase_orders.id, purchase_orders.product_id, DATE(purchase_orders.created_at) AS order_date, purchase_orders.buying_price, purchase_orders.order_qty, "
                     + "products.name, products.quantity AS in_stock, products.restock_value, "
@@ -132,13 +131,13 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         int selectedRowIndex = jTable2.getSelectedRow();
         jTextField3.setText(null);
-        jTextField9.setText(model.getValueAt(selectedRowIndex, 0).toString());
-        jTextField2.setText(model.getValueAt(selectedRowIndex, 2).toString());
-        jTextField4.setText(model.getValueAt(selectedRowIndex, 3).toString());
-        jTextField5.setText(model.getValueAt(selectedRowIndex, 4).toString());
-        jTextField7.setText(model.getValueAt(selectedRowIndex, 10).toString());
-        jTextField10.setText(model.getValueAt(selectedRowIndex, 9).toString());
-        jTextField6.setText(model.getValueAt(selectedRowIndex, 5).toString());
+        jTextField9.setText(String.valueOf(model.getValueAt(selectedRowIndex, 0)));
+        jTextField2.setText(String.valueOf(model.getValueAt(selectedRowIndex, 2)));
+        jTextField4.setText(String.valueOf(model.getValueAt(selectedRowIndex, 3)));
+        jTextField5.setText(String.valueOf(model.getValueAt(selectedRowIndex, 4)));
+        jTextField7.setText(String.valueOf(model.getValueAt(selectedRowIndex, 10)));
+        jTextField10.setText(String.valueOf(model.getValueAt(selectedRowIndex, 9)));
+        jTextField6.setText(String.valueOf(model.getValueAt(selectedRowIndex, 5)));
         jTextField8.setText(null);
         jTextField8.requestFocus();
         jTextField11.setText(null);
@@ -198,13 +197,13 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
         String buying_price = jTextField6.getText().trim();
         String order_qty = jTextField8.getText().trim();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = "INSERT INTO purchase_orders(product_id, buying_price, order_qty, created_by) "
                     + "VALUES(?,?,?,?)";
 
             if (!"".equals(id)) {
                 query = "UPDATE purchase_orders "
-                        + "SET product_id=?, buying_price=?, order_qty=?, updated_at=DATETIME(), updated_by=? "
+                        + "SET product_id=?, buying_price=?, order_qty=?, updated_at=NOW(), updated_by=? "
                         + "WHERE id=?";
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -248,9 +247,9 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
         String buying_price = jTextField6.getText().trim();
         String order_qty = jTextField8.getText().trim();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = "UPDATE purchase_orders "
-                    + "SET status=?, buying_price=?, order_qty=?, received_at=DATETIME(), updated_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP, updated_by=? "
+                    + "SET status=?, buying_price=?, order_qty=?, received_at=NOW(), updated_at=CURRENT_TIMESTAMP, updated_at=CURRENT_TIMESTAMP, updated_by=? "
                     + "WHERE id=?";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -272,7 +271,7 @@ public class FormOpenPurchaseOrders extends javax.swing.JPanel {
                         this.loadPurchaseOrders();
                                 
                         query = "UPDATE products "
-                                + "SET quantity=quantity+?, updated_at=DATETIME(), updated_by=? "
+                                + "SET quantity=quantity+?, updated_at=NOW(), updated_by=? "
                                 + "WHERE id=?";
 
                         try (PreparedStatement pstmt2 = conn.prepareStatement(query)) {

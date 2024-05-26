@@ -4,13 +4,17 @@ import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
 import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
-import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -28,10 +32,42 @@ public class Application extends javax.swing.JFrame {
     public static User LOGGED_IN_USER = null;
     public final static String DB_URL = "jdbc:sqlite:pos.db";
     public final static Logger LOGGER = Logger.getLogger(Application.class.getName());
+    public final static String DEVICE_MAC_ADDRESS = getMacAddress();
     
     private static Application app;
     private final MainForm mainForm;
     private final LoginForm loginForm;
+    
+    public final static Properties APPLICATION_PROPERTIES = new Properties();
+
+    static {
+        try (FileInputStream fis = new FileInputStream("application.properties")) {
+            APPLICATION_PROPERTIES.load(fis);            
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "{0}", ex);
+        }
+    }
+    
+    private static String getMacAddress(){
+        try {
+            Enumeration<NetworkInterface> networks = NetworkInterface.getNetworkInterfaces();
+            while (networks.hasMoreElements()) {
+                NetworkInterface network = networks.nextElement();
+                byte[] mac = network.getHardwareAddress();
+                if (mac != null) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < mac.length; i++) {
+                        sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+                    }
+                    return sb.toString();
+                }
+            }
+            return null; // No MAC address found
+        } catch (SocketException ex) {
+            LOGGER.log(Level.SEVERE, "{0}", ex);
+        }
+        return null;
+    }
 
     public Application() {
         initComponents();

@@ -3,7 +3,6 @@ package mobiclick.application.form.other;
 import java.awt.Color;
 import java.awt.GridLayout;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,8 +13,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
+import mobiclick.application.db.DBConnect;
 import mobiclick.application.db.entities.Cart;
 import mobiclick.application.db.entities.Product;
 
@@ -46,7 +45,7 @@ public class FormNewSale extends javax.swing.JPanel {
 
     private void loadProducts() {
         String searchText = jTextField1.getText().trim();
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = ""
                     + "SELECT * "
                     + "FROM products "

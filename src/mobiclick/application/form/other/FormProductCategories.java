@@ -1,7 +1,6 @@
 package mobiclick.application.form.other;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,8 +9,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import mobiclick.application.Application;
-import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
+import mobiclick.application.db.DBConnect;
 import raven.toast.Notifications;
 
 /**
@@ -38,7 +37,7 @@ public class FormProductCategories extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         model.setRowCount(0);
         String searchText = "%" + jTextField5.getText().trim() + "%";
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = ""
                     + "SELECT id, name, description "
                     + "FROM product_categories "
@@ -66,9 +65,9 @@ public class FormProductCategories extends javax.swing.JPanel {
     private void setProductCategoryDetail() {
         DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
         int selectedRowIndex = jTable2.getSelectedRow();
-        jTextField13.setText(model.getValueAt(selectedRowIndex, 0).toString());
-        jTextField12.setText(model.getValueAt(selectedRowIndex, 1).toString());
-        jTextArea1.setText(model.getValueAt(selectedRowIndex, 2).toString());
+        jTextField13.setText(String.valueOf(model.getValueAt(selectedRowIndex, 0)));
+        jTextField12.setText(String.valueOf(model.getValueAt(selectedRowIndex, 1)));
+        jTextArea1.setText(String.valueOf(model.getValueAt(selectedRowIndex, 2)));
         jButton7.setEnabled(true);
     }
 
@@ -90,13 +89,13 @@ public class FormProductCategories extends javax.swing.JPanel {
         String name = jTextField12.getText().trim().toUpperCase();
         String description = jTextArea1.getText().trim().toUpperCase();
 
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = "INSERT INTO product_categories(name, description, created_by) "
                     + "VALUES(?,?,?)";
 
             if (!"".equals(id)) {
                 query = "UPDATE product_categories "
-                        + "SET name=?, description=?, updated_at=DATETIME(), updated_by=? "
+                        + "SET name=?, description=?, updated_at=NOW(), updated_by=? "
                         + "WHERE id=?";
             }
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {

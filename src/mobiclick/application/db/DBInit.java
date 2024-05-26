@@ -3,15 +3,11 @@ package mobiclick.application.db;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
 
 /**
@@ -32,7 +28,7 @@ public class DBInit {
     }
 
     private void executeSql(String sql) {
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             if (conn != null) {
                 System.out.println("Initializing database...");
 

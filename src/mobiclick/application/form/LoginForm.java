@@ -2,16 +2,14 @@ package mobiclick.application.form;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.logging.Level;
 import net.miginfocom.swing.MigLayout;
 import mobiclick.application.Application;
-import static mobiclick.application.Application.DB_URL;
 import static mobiclick.application.Application.LOGGER;
+import mobiclick.application.db.DBConnect;
 import mobiclick.application.db.models.User;
 import mobiclick.application.db.models.UserRole;
 import raven.toast.Notifications;
@@ -48,7 +46,7 @@ public class LoginForm extends javax.swing.JPanel {
    
     private void loadUsernames() {
         try {
-            Connection conn = DriverManager.getConnection(DB_URL);
+            Connection conn = DBConnect.getConnection();
             String query = "SELECT username FROM users WHERE status=1";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -67,7 +65,7 @@ public class LoginForm extends javax.swing.JPanel {
         String username = jcbUser.getSelectedItem().toString();      
         String password = new String(txtPass.getPassword());
         
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DBConnect.getConnection()) {
             String query = ""
                     + "SELECT users.id, users.username, users.name, "
                     + "user_roles.id AS role_id, user_roles.name AS role_name "
