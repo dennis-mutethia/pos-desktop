@@ -19,7 +19,7 @@ VALUES
 CREATE TABLE IF NOT EXISTS users (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(64) NOT NULL,
-  password VARCHAR(64) DEFAULT NULL,
+  password VARCHAR(256) DEFAULT NULL,
   role_id INT DEFAULT NULL,
   name VARCHAR(64) DEFAULT NULL,
   phone VARCHAR(64) DEFAULT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
   UNIQUE KEY (username, status)
 );
 INSERT IGNORE INTO users(username, password, role_id, name) 
-VALUES('admin', 'admin', 1, 'Admin');
+VALUES('admin', SHA2('admin',256), 1, 'Admin');
 
 CREATE TABLE IF NOT EXISTS product_categories (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

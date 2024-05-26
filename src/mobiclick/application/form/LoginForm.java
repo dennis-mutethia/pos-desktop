@@ -71,7 +71,7 @@ public class LoginForm extends javax.swing.JPanel {
                     + "user_roles.id AS role_id, user_roles.name AS role_name "
                     + "FROM users "
                     + "JOIN user_roles ON user_roles.id=users.role_id "
-                    + "WHERE users.username = ? AND users.password=? ";
+                    + "WHERE users.username = ? AND users.password=SHA2(?,256) ";
 
             try (PreparedStatement pstmt = conn.prepareStatement(query)) {
                 pstmt.setString(1, username);
